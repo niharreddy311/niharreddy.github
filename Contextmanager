@@ -1,0 +1,54 @@
+import asyncio
+import sys
+
+class AsyncContextManager:
+    async def __aenter__(self):
+        print("Async setup code")
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        print("Async teardown code")
+        if exc_type is not None:
+            print(f"Caught an exception: {exc_type.__name__}, {exc_value}")
+
+async def async_example():
+    async with AsyncContextManager():
+        print("Inside async block")
+        raise ValueError("An async exception")
+
+def shortest_path(graph, start, end):
+    n = len(graph)
+    
+    if n != len(graph[0]):
+        raise ValueError("Invalid graph: Not a square matrix")
+    
+    distance = [sys.maxsize] * n
+    distance[start] = 0
+    
+    visited = set()
+    while len(visited) < n:
+        node = min((i for i in range(n) if i not in visited), key=lambda x: distance[x])
+        visited.add(node)
+        for neighbor, weight in enumerate(graph[node]):
+            if weight > 0 and distance[node] + weight < distance[neighbor]:
+                distance[neighbor] = distance[node] + weight
+    
+    return distance[end] if distance[end] != sys.maxsize else None
+
+# Example usage
+graph_matrix = [
+    [0, 2, 4, 0, 0],
+    [0, 0, 1, 7, 0],
+    [0, 0, 0, 0, 3],
+    [0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0]
+]
+
+start_node = 0
+end_node = 4
+result = shortest_path(graph_matrix, start_node, end_node)
+
+print(f"Shortest path from node {start_node} to {end_node}: {result}")
+
+# Run the asynchronous example
+asyncio.run(async_example())
